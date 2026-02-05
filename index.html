@@ -3,823 +3,991 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Каталог контента</title>
+    <title>Infobiz Villa | Закрытая встреча на Бали</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #0f0f0f;
+            --bg-card-hover: #141414;
+            --gold: #DAA520;
+            --gold-light: #FFD700;
+            --gold-dim: #B8860B;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666;
+            --border-gold: rgba(218, 165, 32, 0.25);
+            --border-gold-hover: rgba(218, 165, 32, 0.5);
+            --gradient-gold: linear-gradient(135deg, #DAA520, #FFD700);
+            --gradient-gold-subtle: linear-gradient(135deg, rgba(218,165,32,0.1), rgba(255,215,0,0.05));
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
-            color: #ffffff;
-            min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
             overflow-x: hidden;
         }
 
-        .header {
-            position: sticky;
-            top: 0;
-            background: rgba(15, 20, 25, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* ===== HERO SECTION ===== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: hidden;
         }
 
-        .header-content {
+        .hero__bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero__bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .hero__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(10, 10, 10, 0.65) 0%,
+                rgba(10, 10, 10, 0.35) 30%,
+                rgba(10, 10, 10, 0.3) 50%,
+                rgba(10, 10, 10, 0.7) 75%,
+                rgba(10, 10, 10, 1) 100%
+            );
+            z-index: 1;
+        }
+
+        .hero__content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 1000px;
+            padding: 72px 24px 0;
+            margin-bottom: auto;
+        }
+
+        .hero__logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 3;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            padding: 20px 24px;
+        }
+
+        .hero__bottom {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 24px 60px;
+            margin-top: auto;
+        }
+
+        .hero__title {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 36px;
+            color: var(--text-primary);
+        }
+
+        .hero__title span {
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero__meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 44px;
+        }
+
+        .hero__meta-item {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
+            background: rgba(218, 165, 32, 0.08);
+            border: 1px solid var(--border-gold);
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
         }
 
-        .back-btn {
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 600;
-            text-align: center;
-            flex: 1;
-        }
-
-        .search-container {
-            padding: 20px;
-            position: sticky;
-            top: 70px;
-            background: rgba(15, 20, 25, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 90;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 45px 12px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            color: #ffffff;
+        .hero__meta-icon {
+            color: var(--gold);
             font-size: 16px;
-            outline: none;
-            transition: all 0.3s;
         }
 
-        .search-input:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #3b82f6;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        .btn-primary {
+            display: inline-block;
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 18px 48px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(218, 165, 32, 0.3);
         }
 
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(218, 165, 32, 0.5);
         }
 
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.6);
+        /* ===== SECTION COMMON ===== */
+        .section {
+            padding: 100px 24px;
         }
 
         .container {
-            padding: 20px;
-            max-width: 500px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
-        .categories-grid {
+        .section__label {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+
+        .section__title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .section__subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 640px;
+            line-height: 1.7;
+        }
+
+        /* ===== FOR WHOM ===== */
+        .for-whom {
+            background: var(--bg-dark);
+        }
+
+        .for-whom__grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 56px;
         }
 
-        .category-card {
+        .for-whom__card {
+            background: var(--gradient-gold-subtle);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            padding: 36px 28px;
+            transition: all 0.35s ease;
             position: relative;
-            height: 140px;
-            border-radius: 16px;
             overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .category-card:nth-child(2n) {
-            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-        }
-
-        .category-card:nth-child(3n) {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-        }
-
-        .category-card:nth-child(4n) {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-        }
-
-        .category-card:nth-child(5n) {
-            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-        }
-
-        .category-card:nth-child(6n) {
-            background: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
-        }
-
-        .category-card::before {
+        .for-whom__card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-            z-index: 1;
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .category-icon {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 32px;
-            opacity: 0.8;
-            z-index: 2;
-        }
-
-        .category-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #3b82f6;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 3;
-        }
-
-        .category-content {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            z-index: 2;
-        }
-
-        .category-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .category-subtitle {
-            font-size: 12px;
-            opacity: 0.9;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .content-section {
-            display: none;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .sort-dropdown {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #ffffff;
-            padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .content-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .content-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .content-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+            height: 2px;
+            background: var(--gradient-gold);
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.35s ease;
         }
 
-        .content-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        .for-whom__card:hover {
+            border-color: var(--border-gold-hover);
+            transform: translateY(-4px);
+            background: rgba(218, 165, 32, 0.06);
         }
 
-        .content-item:hover::before {
+        .for-whom__card:hover::before {
             opacity: 1;
         }
 
-        .content-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .content-thumbnail {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        .for-whom__card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: rgba(218, 165, 32, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 24px;
             font-size: 24px;
+        }
+
+        .for-whom__card-title {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+        }
+
+        .for-whom__card-text {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ===== LOCATION ===== */
+        .location {
+            background: var(--bg-dark);
+        }
+
+        .location__header {
+            margin-bottom: 48px;
+        }
+
+        .location__gallery {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .location__gallery-main {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/8;
+        }
+
+        .location__gallery-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .location__gallery-main:hover img {
+            transform: scale(1.03);
+        }
+
+        .location__gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .location__gallery-item {
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        .location__gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .location__gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .location__features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .location__feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            background: rgba(218, 165, 32, 0.04);
+            border: 1px solid rgba(218, 165, 32, 0.12);
+            border-radius: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .location__feature:hover {
+            border-color: var(--border-gold-hover);
+        }
+
+        .location__feature-check {
+            color: var(--gold);
+            font-size: 18px;
             flex-shrink: 0;
         }
 
-        .content-info {
+        .location__feature-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ===== PROGRAM ===== */
+        .program {
+            background: var(--bg-card);
+        }
+
+        .program__timeline {
+            margin-top: 56px;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .program__timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--gold), var(--gold-dim), transparent);
+        }
+
+        .program__item {
+            position: relative;
+            padding-bottom: 36px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .program__item:last-child {
+            padding-bottom: 0;
+        }
+
+        .program__dot {
+            position: absolute;
+            left: -40px;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--gold);
+            z-index: 1;
+        }
+
+        .program__item--highlight .program__dot {
+            background: var(--gold);
+            box-shadow: 0 0 12px rgba(218, 165, 32, 0.5);
+        }
+
+        .program__time {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gold);
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .program__info {
             flex: 1;
         }
 
-        .content-title {
-            font-size: 16px;
+        .program__name {
+            font-size: 17px;
             font-weight: 600;
-            margin-bottom: 5px;
-            line-height: 1.3;
+            color: var(--text-primary);
+            margin-bottom: 4px;
         }
 
-        .content-meta {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 8px;
-        }
-
-        .content-tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .content-tag {
-            background: rgba(59, 130, 246, 0.2);
-            color: #93c5fd;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .content-description {
-            color: rgba(255, 255, 255, 0.8);
+        .program__desc {
             font-size: 14px;
-            line-height: 1.4;
-            margin-top: 10px;
+            color: var(--text-secondary);
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #3b82f6;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+        .program__item--break {
             opacity: 0.5;
         }
 
-        @media (max-width: 480px) {
-            .categories-grid {
-                gap: 12px;
+        .program__item--break .program__dot {
+            border-color: var(--text-muted);
+        }
+
+        /* ===== PRICING ===== */
+        .pricing {
+            background: var(--bg-dark);
+        }
+
+        .pricing__grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+            margin-top: 56px;
+            align-items: start;
+        }
+
+        .pricing__card {
+            background: var(--gradient-gold-subtle);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 44px 36px;
+            position: relative;
+            transition: all 0.35s ease;
+        }
+
+        .pricing__card:hover {
+            border-color: var(--border-gold-hover);
+            transform: translateY(-4px);
+        }
+
+        .pricing__card--featured {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, rgba(218,165,32,0.12), rgba(255,215,0,0.04));
+        }
+
+        .pricing__card--featured:hover {
+            border-color: var(--gold-light);
+            box-shadow: 0 0 40px rgba(218, 165, 32, 0.15);
+        }
+
+        .pricing__badge {
+            position: absolute;
+            top: -14px;
+            right: 28px;
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 18px;
+            border-radius: 20px;
+        }
+
+        .pricing__name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .pricing__spots {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .pricing__price {
+            font-size: 52px;
+            font-weight: 900;
+            margin-bottom: 32px;
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pricing__list {
+            list-style: none;
+            margin-bottom: 36px;
+        }
+
+        .pricing__list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 15px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .pricing__list li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing__list-check {
+            color: var(--gold);
+            font-size: 14px;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .pricing__list li strong {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+
+        .btn-outline {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: transparent;
+            color: var(--gold);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 16px 32px;
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            box-shadow: 0 4px 24px rgba(218, 165, 32, 0.3);
+        }
+
+        .btn-primary-full {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(218, 165, 32, 0.3);
+        }
+
+        .btn-primary-full:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(218, 165, 32, 0.5);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--bg-card);
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid rgba(218, 165, 32, 0.1);
+        }
+
+        .footer__text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer__brand {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .for-whom__grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
             }
-            
-            .category-card {
-                height: 120px;
+
+            .pricing__grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
             }
-            
-            .container {
-                padding: 15px;
+
+            .location__gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
+        }
+
+        @media (max-width: 600px) {
+            .section {
+                padding: 72px 16px;
+            }
+
+            .hero__content {
+                padding: 0 16px;
+                margin-top: 48vh;
+                margin-bottom: 0;
+            }
+
+            .hero__title {
+                font-size: 17px;
+                line-height: 1.25;
+                margin-bottom: 24px;
+            }
+
+            .hero__logo {
+                font-size: 10px;
+                letter-spacing: 3px;
+                padding: 16px 16px;
+            }
+
+            .hero__meta {
+                gap: 8px;
+            }
+
+            .hero__meta-item {
+                font-size: 12px;
+                padding: 8px 14px;
+            }
+
+            .btn-primary {
+                padding: 16px 32px;
+                font-size: 14px;
+                letter-spacing: 1px;
+            }
+
+            .program__timeline {
+                padding-left: 32px;
+            }
+
+            .program__item {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .program__time {
+                min-width: auto;
+            }
+
+            .pricing__card {
+                padding: 32px 24px;
+            }
+
+            .pricing__price {
+                font-size: 42px;
+            }
+
+            .location__gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <button class="back-btn" id="backBtn" style="display: none;">‹</button>
-            <div class="header-title" id="headerTitle">Каталог контента</div>
-        </div>
-    </div>
 
-    <div class="search-container" id="searchContainer">
-        <div class="search-box">
-            <input type="text" class="search-input" id="searchInput" placeholder="Поиск...">
-            <div class="search-icon">🔍</div>
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero__bg">
+            <img src="hero.png" alt="Infobiz Villa Bali" loading="eager">
         </div>
-    </div>
+        <div class="hero__overlay"></div>
+        <div class="hero__logo">Bali Infobiz Villa</div>
+        <div class="hero__content">
+            <h1 class="hero__title">
+                Закрытая инфобиз встреча от <span>Саши Горевича</span> для тех, кто хочет на 1 день отключиться от операционки и заняться <span>стратегией своего прорыва в 2026</span>
+            </h1>
+        </div>
+        <div class="hero__bottom">
+            <div class="hero__meta">
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9734;</span>
+                    12 февраля 2026
+                </div>
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9906;</span>
+                    Чангу, Бали
+                </div>
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9201;</span>
+                    10:00 &mdash; 20:00
+                </div>
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9679;</span>
+                    15 мест
+                </div>
+            </div>
+            <a href="#pricing" class="btn-primary">Забронировать место</a>
+        </div>
+    </section>
 
-    <div class="container">
-        <!-- Главная страница с категориями -->
-        <div id="categoriesView">
-            <div class="categories-grid" id="categoriesGrid">
-                <!-- Категории будут загружены динамически -->
+    <!-- FOR WHOM -->
+    <section class="section for-whom" id="for-whom">
+        <div class="container">
+            <span class="section__label fade-in">Для кого</span>
+            <h2 class="section__title fade-in">Кому подойдёт эта встреча</h2>
+            <div class="for-whom__grid">
+                <div class="for-whom__card fade-in">
+                    <div class="for-whom__card-icon">&#9889;</div>
+                    <h3 class="for-whom__card-title">Делаете запуски наощупь</h3>
+                    <p class="for-whom__card-text">Работаете один/одна, устали, не с кем посоветоваться. Нет системы — каждый запуск как первый. Хотите получить проверенный алгоритм и перестать тратить время на догадки. На ивенте разложите свой проект по полочкам и получите чёткий вектор действий.</p>
+                </div>
+                <div class="for-whom__card fade-in">
+                    <div class="for-whom__card-icon">&#9998;</div>
+                    <h3 class="for-whom__card-title">В точке выбора</h3>
+                    <p class="for-whom__card-text">Вышли из партнёрства или закрыли проект. «Висит в воздухе» вопрос что делать дальше и как развиваться. Нужна перезагрузка и свежий взгляд со стороны. За день структурируете хаос в голове, увидите точки роста и уйдёте с чётким планом на 2026.</p>
+                </div>
+                <div class="for-whom__card fade-in">
+                    <div class="for-whom__card-icon">&#9733;</div>
+                    <h3 class="for-whom__card-title">Ищете сильное окружение</h3>
+                    <p class="for-whom__card-text">Хотите быть «самым глупым в комнате» — там где все уже имеют результаты выше ваших. Устали от пустого нетворкинга и хотите коллабораций с сильными игроками. Познакомитесь с людьми которые «шарят и развиваются», найдёте партнёров и новые возможности.</p>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Страница контента категории -->
-        <div id="contentView" class="content-section">
-            <div class="section-header">
-                <h2 id="sectionTitle">Загрузка...</h2>
-                <select class="sort-dropdown" id="sortDropdown">
-                    <option value="newest">Сначала новые</option>
-                    <option value="oldest">Сначала старые</option>
-                    <option value="popular">По популярности</option>
-                    <option value="title">По названию</option>
-                </select>
+    <!-- LOCATION -->
+    <section class="section location" id="location">
+        <div class="container">
+            <div class="location__header">
+                <span class="section__label fade-in">Локация</span>
+                <h2 class="section__title fade-in">Приватная вилла в сердце Чангу</h2>
+                <p class="section__subtitle fade-in">Целый день на закрытой вилле с бассейном, рабочими зонами и зонами отдыха. Атмосфера, где можно сосредоточиться на стратегии, не отвлекаясь на повседневные дела.</p>
             </div>
-            <div class="content-list" id="contentList">
-                <div class="loading">Загрузка контента...</div>
+
+            <div class="location__gallery fade-in">
+                <div class="location__gallery-main">
+                    <img src="villa-exterior.png" alt="Вилла в Чангу - вид снаружи" loading="lazy">
+                </div>
+                <div class="location__gallery-grid">
+                    <div class="location__gallery-item">
+                        <img src="villa-pool.png" alt="Бассейн виллы" loading="lazy">
+                    </div>
+                    <div class="location__gallery-item">
+                        <img src="villa-living.png" alt="Гостиная виллы" loading="lazy">
+                    </div>
+                    <div class="location__gallery-item">
+                        <img src="villa-dining.png" alt="Обеденная зона" loading="lazy">
+                    </div>
+                    <div class="location__gallery-item">
+                        <img src="villa-pool-night.png" alt="Бассейн вечером" loading="lazy">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PROGRAM -->
+    <section class="section program" id="program">
+        <div class="container">
+            <span class="section__label fade-in">Программа</span>
+            <h2 class="section__title fade-in">Как пройдёт день</h2>
+            <p class="section__subtitle fade-in">Структурированная программа, в которой каждый блок работает на ваш результат.</p>
+
+            <div class="program__timeline fade-in">
+                <div class="program__item">
+                    <div class="program__dot"></div>
+                    <div class="program__time">10:00 &mdash; 10:30</div>
+                    <div class="program__info">
+                        <div class="program__name">Сбор участников + нетворкинг</div>
+                        <div class="program__desc">Знакомство, обмен контактами, первые связи</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--highlight">
+                    <div class="program__dot"></div>
+                    <div class="program__time">10:30 &mdash; 12:30</div>
+                    <div class="program__info">
+                        <div class="program__name">Контентный блок от Саши Горевича</div>
+                        <div class="program__desc">Стратегии, инсайты и практические фреймворки для роста в 2026</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--break">
+                    <div class="program__dot"></div>
+                    <div class="program__time">12:30 &mdash; 13:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Перерыв</div>
+                        <div class="program__desc">Неформальное общение</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--highlight">
+                    <div class="program__dot"></div>
+                    <div class="program__time">13:00 &mdash; 15:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Разбор №1</div>
+                        <div class="program__desc">Глубокий разбор проекта</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--break">
+                    <div class="program__dot"></div>
+                    <div class="program__time">15:00 &mdash; 16:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Обед</div>
+                        <div class="program__desc">Обед</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--highlight">
+                    <div class="program__dot"></div>
+                    <div class="program__time">16:00 &mdash; 18:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Разбор №2</div>
+                        <div class="program__desc">Глубокий разбор проекта</div>
+                    </div>
+                </div>
+                <div class="program__item">
+                    <div class="program__dot"></div>
+                    <div class="program__time">18:00 &mdash; 18:30</div>
+                    <div class="program__info">
+                        <div class="program__name">Рефлексия</div>
+                        <div class="program__desc">Подведение итогов дня, ключевые выводы</div>
+                    </div>
+                </div>
+                <div class="program__item">
+                    <div class="program__dot"></div>
+                    <div class="program__time">18:30 &mdash; 22:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Афтепати</div>
+                        <div class="program__desc">Кальян, общение, неформальный нетворкинг у бассейна</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- PRICING -->
+    <section class="section pricing" id="pricing">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 8px;">
+                <span class="section__label fade-in">Тарифы</span>
+            </div>
+            <h2 class="section__title fade-in" style="text-align: center;">Выберите свой формат участия</h2>
+
+            <div class="pricing__grid">
+                <!-- Participant -->
+                <div class="pricing__card fade-in">
+                    <div class="pricing__name">Участник</div>
+                    <div class="pricing__spots">14 мест</div>
+                    <div class="pricing__price">$100</div>
+                    <ul class="pricing__list">
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Нетворкинг с сильным комьюнити
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            2 глубоких разбора проектов
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Контентный блок от Саши Горевича
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Фрукты, орехи
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Кальян
+                        </li>
+                    </ul>
+                    <a href="https://t.me/sashagorevych" class="btn-outline">Забронировать</a>
+                </div>
+
+                <!-- Featured -->
+                <div class="pricing__card pricing__card--featured fade-in">
+                    <div class="pricing__badge">Эксклюзив</div>
+                    <div class="pricing__name">Участник с разбором</div>
+                    <div class="pricing__spots">1 место</div>
+                    <div class="pricing__price">$1000</div>
+                    <ul class="pricing__list">
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Нетворкинг с сильным комьюнити
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            2 глубоких разбора проектов
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Контентный блок от Саши Горевича
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Фрукты, орехи
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Кальян
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            <strong>Персональный 2-часовой разбор вашего проекта перед всеми участниками</strong>
+                        </li>
+                    </ul>
+                    <a href="https://t.me/sashagorevych" class="btn-primary-full">Забронировать</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p class="footer__text">&copy; 2026 <span class="footer__brand">Bali Infobiz Villa</span>. Все права защищены.</p>
+    </footer>
+
+    <!-- SCROLL ANIMATIONS -->
     <script>
-        // Инициализация Telegram Web App
-        const tg = window.Telegram?.WebApp || {};
-        
-        // Имитация базы данных
-        const DATABASE = {
-            categories: [
-                {
-                    id: 1,
-                    title: 'ЭФИРЫ',
-                    subtitle: 'Прямые эфиры',
-                    icon: '🎙️',
-                    count: 25,
-                    color: 'blue'
-                },
-                {
-                    id: 2,
-                    title: 'КУРСЫ',
-                    subtitle: 'Обучение',
-                    icon: '🧠',
-                    count: 8,
-                    color: 'purple'
-                },
-                {
-                    id: 3,
-                    title: 'РАЗБОРЫ',
-                    subtitle: 'Детальный анализ',
-                    icon: '🔧',
-                    count: 27,
-                    color: 'red'
-                },
-                {
-                    id: 4,
-                    title: 'БИЗНЕС',
-                    subtitle: 'Предпринимательство',
-                    icon: '🦈',
-                    count: 5,
-                    color: 'green'
-                },
-                {
-                    id: 5,
-                    title: 'КНИГИ',
-                    subtitle: 'Литература',
-                    icon: '📚',
-                    count: 10,
-                    color: 'orange'
-                },
-                {
-                    id: 6,
-                    title: 'ФИЛЬМЫ',
-                    subtitle: 'Кинематограф',
-                    icon: '🎬',
-                    count: 8,
-                    color: 'pink'
-                }
-            ],
-            content: {
-                1: [ // ЭФИРЫ
-                    {
-                        id: 1,
-                        title: 'Эфир с Александром Смирновым ч.1',
-                        description: 'Эфир про запуск продукта с нуля и рост до федерального бренда. Если делаешь товарку — смотреть обязательно.',
-                        duration: '51:00',
-                        date: '2024-05-20',
-                        tags: ['#Мышление', '#Маркетинг'],
-                        url: 'https://example.com/efir1',
-                        thumbnail: '🎤',
-                        views: 15420
-                    },
-                    {
-                        id: 2,
-                        title: 'Разбор кейса: От идеи к миллиону',
-                        description: 'История успешного стартапа и ошибки, которых можно было избежать.',
-                        duration: '43:22',
-                        date: '2024-05-18',
-                        tags: ['#Стартап', '#Кейсы'],
-                        url: 'https://example.com/efir2',
-                        thumbnail: '💡',
-                        views: 12350
-                    },
-                    {
-                        id: 3,
-                        title: 'Психология продаж в 2024',
-                        description: 'Новые подходы к работе с клиентами и современные техники убеждения.',
-                        duration: '38:15',
-                        date: '2024-05-15',
-                        tags: ['#Продажи', '#Психология'],
-                        url: 'https://example.com/efir3',
-                        thumbnail: '🧠',
-                        views: 9870
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
                     }
-                ],
-                2: [ // КУРСЫ
-                    {
-                        id: 4,
-                        title: 'Основы цифрового маркетинга',
-                        description: 'Полный курс по digital-маркетингу для начинающих и продвинутых.',
-                        duration: '4ч 20м',
-                        date: '2024-05-10',
-                        tags: ['#Маркетинг', '#Обучение'],
-                        url: 'https://example.com/course1',
-                        thumbnail: '📊',
-                        views: 5670
-                    },
-                    {
-                        id: 5,
-                        title: 'SMM стратегии 2024',
-                        description: 'Актуальные подходы к продвижению в социальных сетях.',
-                        duration: '2ч 45м',
-                        date: '2024-05-08',
-                        tags: ['#SMM', '#Стратегия'],
-                        url: 'https://example.com/course2',
-                        thumbnail: '📱',
-                        views: 4320
-                    }
-                ],
-                3: [ // РАЗБОРЫ
-                    {
-                        id: 6,
-                        title: 'Разбор рекламной кампании Apple',
-                        description: 'Детальный анализ маркетинговой стратегии и креативов Apple.',
-                        duration: '32:10',
-                        date: '2024-05-12',
-                        tags: ['#Реклама', '#Apple', '#Анализ'],
-                        url: 'https://example.com/razbor1',
-                        thumbnail: '🍎',
-                        views: 8950
-                    },
-                    {
-                        id: 7,
-                        title: 'Как Netflix захватил рынок',
-                        description: 'Стратегия экспансии и удержания аудитории стримингового гиганта.',
-                        duration: '28:45',
-                        date: '2024-05-09',
-                        tags: ['#Netflix', '#Стратегия', '#Стриминг'],
-                        url: 'https://example.com/razbor2',
-                        thumbnail: '🎭',
-                        views: 7230
-                    }
-                ],
-                4: [ // БИЗНЕС
-                    {
-                        id: 8,
-                        title: 'Как масштабировать IT-бизнес',
-                        description: 'Практические советы по росту технологического стартапа.',
-                        duration: '45:30',
-                        date: '2024-05-14',
-                        tags: ['#IT', '#Масштабирование', '#Стартап'],
-                        url: 'https://example.com/business1',
-                        thumbnail: '💻',
-                        views: 6540
-                    }
-                ],
-                5: [ // КНИГИ
-                    {
-                        id: 9,
-                        title: 'Обзор: "Думай медленно... решай быстро"',
-                        description: 'Разбор ключевых идей книги Даниэля Канемана о принятии решений.',
-                        duration: '25:15',
-                        date: '2024-05-11',
-                        tags: ['#Психология', '#Решения', '#Канеман'],
-                        url: 'https://example.com/book1',
-                        thumbnail: '📖',
-                        views: 4180
-                    }
-                ],
-                6: [ // ФИЛЬМЫ
-                    {
-                        id: 10,
-                        title: 'Разбор фильма "Социальная сеть"',
-                        description: 'Анализ картины о создании Facebook и уроки для предпринимателей.',
-                        duration: '35:20',
-                        date: '2024-05-07',
-                        tags: ['#Кино', '#Стартап', '#Facebook'],
-                        url: 'https://example.com/film1',
-                        thumbnail: '🎬',
-                        views: 5920
-                    }
-                ]
-            }
-        };
-
-        // Состояние приложения
-        let currentCategory = null;
-        let filteredContent = [];
-        let searchQuery = '';
-
-        // Элементы DOM
-        const elements = {
-            categoriesView: document.getElementById('categoriesView'),
-            contentView: document.getElementById('contentView'),
-            categoriesGrid: document.getElementById('categoriesGrid'),
-            contentList: document.getElementById('contentList'),
-            headerTitle: document.getElementById('headerTitle'),
-            backBtn: document.getElementById('backBtn'),
-            searchInput: document.getElementById('searchInput'),
-            searchContainer: document.getElementById('searchContainer'),
-            sectionTitle: document.getElementById('sectionTitle'),
-            sortDropdown: document.getElementById('sortDropdown')
-        };
-
-        // Инициализация приложения
-        function initApp() {
-            if (tg.expand) tg.expand();
-            if (tg.ready) tg.ready();
-            
-            renderCategories();
-            setupEventListeners();
-        }
-
-        // Отрисовка категорий
-        function renderCategories() {
-            const categoriesHTML = DATABASE.categories.map(category => `
-                <div class="category-card" onclick="openCategory(${category.id})">
-                    <div class="category-badge">${category.count}</div>
-                    <div class="category-icon">${category.icon}</div>
-                    <div class="category-content">
-                        <div class="category-title">${category.title}</div>
-                        <div class="category-subtitle">${category.subtitle}</div>
-                    </div>
-                </div>
-            `).join('');
-            
-            elements.categoriesGrid.innerHTML = categoriesHTML;
-        }
-
-        // Открытие категории
-        function openCategory(categoryId) {
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('light');
-            }
-            
-            currentCategory = categoryId;
-            const category = DATABASE.categories.find(c => c.id === categoryId);
-            
-            // Обновляем UI
-            elements.categoriesView.style.display = 'none';
-            elements.contentView.classList.add('active');
-            elements.backBtn.style.display = 'block';
-            elements.headerTitle.textContent = category.title;
-            elements.sectionTitle.textContent = category.title;
-            
-            // Загружаем контент
-            loadCategoryContent(categoryId);
-        }
-
-        // Загрузка контента категории
-        function loadCategoryContent(categoryId) {
-            elements.contentList.innerHTML = '<div class="loading">Загрузка контента...</div>';
-            
-            // Имитация загрузки
-            setTimeout(() => {
-                const content = DATABASE.content[categoryId] || [];
-                filteredContent = [...content];
-                renderContent();
-            }, 800);
-        }
-
-        // Отрисовка контента
-        function renderContent() {
-            if (filteredContent.length === 0) {
-                elements.contentList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📭</div>
-                        <div>Контент не найден</div>
-                    </div>
-                `;
-                return;
-            }
-
-            const contentHTML = filteredContent.map(item => `
-                <div class="content-item" onclick="openContent('${item.url}', '${item.title}')">
-                    <div class="content-header">
-                        <div class="content-thumbnail">${item.thumbnail}</div>
-                        <div class="content-info">
-                            <div class="content-title">${item.title}</div>
-                            <div class="content-meta">
-                                <span>⏱️ ${item.duration}</span>
-                                <span>👁️ ${formatViews(item.views)}</span>
-                                <span>📅 ${formatDate(item.date)}</span>
-                            </div>
-                            <div class="content-tags">
-                                ${item.tags.map(tag => `<span class="content-tag">${tag}</span>`).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="content-description">${item.description}</div>
-                </div>
-            `).join('');
-            
-            elements.contentList.innerHTML = contentHTML;
-        }
-
-        // Открытие контента
-        function openContent(url, title) {
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-            
-            if (tg.openLink) {
-                tg.openLink(url);
-            } else {
-                window.open(url, '_blank');
-            }
-            
-            // Отправляем данные боту
-            if (tg.sendData) {
-                tg.sendData(JSON.stringify({
-                    action: 'content_opened',
-                    title: title,
-                    url: url,
-                    category: currentCategory,
-                    timestamp: Date.now()
-                }));
-            }
-        }
-
-        // Возврат к категориям
-        function goBack() {
-            currentCategory = null;
-            elements.contentView.classList.remove('active');
-            elements.categoriesView.style.display = 'block';
-            elements.backBtn.style.display = 'none';
-            elements.headerTitle.textContent = 'Каталог контента';
-            elements.searchInput.value = '';
-            searchQuery = '';
-        }
-
-        // Поиск контента
-        function searchContent() {
-            searchQuery = elements.searchInput.value.toLowerCase().trim();
-            
-            if (!currentCategory) return;
-            
-            const allContent = DATABASE.content[currentCategory] || [];
-            
-            if (!searchQuery) {
-                filteredContent = [...allContent];
-            } else {
-                filteredContent = allContent.filter(item => 
-                    item.title.toLowerCase().includes(searchQuery) ||
-                    item.description.toLowerCase().includes(searchQuery) ||
-                    item.tags.some(tag => tag.toLowerCase().includes(searchQuery))
-                );
-            }
-            
-            renderContent();
-        }
-
-        // Сортировка контента
-        function sortContent() {
-            const sortType = elements.sortDropdown.value;
-            
-            filteredContent.sort((a, b) => {
-                switch (sortType) {
-                    case 'newest':
-                        return new Date(b.date) - new Date(a.date);
-                    case 'oldest':
-                        return new Date(a.date) - new Date(b.date);
-                    case 'popular':
-                        return b.views - a.views;
-                    case 'title':
-                        return a.title.localeCompare(b.title);
-                    default:
-                        return 0;
-                }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -40px 0px'
             });
-            
-            renderContent();
-        }
 
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            elements.backBtn.addEventListener('click', goBack);
-            elements.searchInput.addEventListener('input', searchContent);
-            elements.sortDropdown.addEventListener('change', sortContent);
-        }
-
-        // Утилиты
-        function formatViews(views) {
-            if (views >= 1000000) return Math.floor(views / 1000000) + 'M';
-            if (views >= 1000) return Math.floor(views / 1000) + 'K';
-            return views.toString();
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('ru-RU', { 
-                day: 'numeric', 
-                month: 'short' 
+            document.querySelectorAll('.fade-in').forEach(function(el) {
+                observer.observe(el);
             });
-        }
-
-        // Запуск приложения
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
+        });
     </script>
+
 </body>
 </html>
