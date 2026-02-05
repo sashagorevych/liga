@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infobiz Villa | Закрытая встреча на Бали</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #0f0f0f;
+            --bg-card-hover: #141414;
+            --gold: #DAA520;
+            --gold-light: #FFD700;
+            --gold-dim: #B8860B;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666;
+            --border-gold: rgba(218, 165, 32, 0.25);
+            --border-gold-hover: rgba(218, 165, 32, 0.5);
+            --gradient-gold: linear-gradient(135deg, #DAA520, #FFD700);
+            --gradient-gold-subtle: linear-gradient(135deg, rgba(218,165,32,0.1), rgba(255,215,0,0.05));
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .hero__bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero__bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .hero__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(10, 10, 10, 0.65) 0%,
+                rgba(10, 10, 10, 0.35) 30%,
+                rgba(10, 10, 10, 0.3) 50%,
+                rgba(10, 10, 10, 0.7) 75%,
+                rgba(10, 10, 10, 1) 100%
+            );
+            z-index: 1;
+        }
+
+        .hero__content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 1000px;
+            padding: 72px 24px 0;
+            margin-bottom: auto;
+        }
+
+        .hero__logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 3;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            padding: 20px 24px;
+        }
+
+        .hero__bottom {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 24px 60px;
+            margin-top: auto;
+        }
+
+        .hero__title {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 36px;
+            color: var(--text-primary);
+        }
+
+        .hero__title span {
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero__meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 44px;
+        }
+
+        .hero__meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(218, 165, 32, 0.08);
+            border: 1px solid var(--border-gold);
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .hero__meta-icon {
+            color: var(--gold);
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 18px 48px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(218, 165, 32, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(218, 165, 32, 0.5);
+        }
+
+        /* ===== SECTION COMMON ===== */
+        .section {
+            padding: 100px 24px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section__label {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+
+        .section__title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .section__subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 640px;
+            line-height: 1.7;
+        }
+
+        /* ===== FOR WHOM ===== */
+        .for-whom {
+            background: var(--bg-dark);
+        }
+
+        .for-whom__grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 56px;
+        }
+
+        .for-whom__card {
+            background: var(--gradient-gold-subtle);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            padding: 36px 28px;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .for-whom__card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-gold);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .for-whom__card:hover {
+            border-color: var(--border-gold-hover);
+            transform: translateY(-4px);
+            background: rgba(218, 165, 32, 0.06);
+        }
+
+        .for-whom__card:hover::before {
+            opacity: 1;
+        }
+
+        .for-whom__card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: rgba(218, 165, 32, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        .for-whom__card-title {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+        }
+
+        .for-whom__card-text {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ===== LOCATION ===== */
+        .location {
+            background: var(--bg-dark);
+        }
+
+        .location__header {
+            margin-bottom: 48px;
+        }
+
+        .location__gallery {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 48px;
+        }
+
+        .location__gallery-main {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/8;
+        }
+
+        .location__gallery-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .location__gallery-main:hover img {
+            transform: scale(1.03);
+        }
+
+        .location__gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .location__gallery-item {
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        .location__gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .location__gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .location__features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .location__feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            background: rgba(218, 165, 32, 0.04);
+            border: 1px solid rgba(218, 165, 32, 0.12);
+            border-radius: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .location__feature:hover {
+            border-color: var(--border-gold-hover);
+        }
+
+        .location__feature-check {
+            color: var(--gold);
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .location__feature-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* ===== PROGRAM ===== */
+        .program {
+            background: var(--bg-card);
+        }
+
+        .program__timeline {
+            margin-top: 56px;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .program__timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--gold), var(--gold-dim), transparent);
+        }
+
+        .program__item {
+            position: relative;
+            padding-bottom: 36px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .program__item:last-child {
+            padding-bottom: 0;
+        }
+
+        .program__dot {
+            position: absolute;
+            left: -40px;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--gold);
+            z-index: 1;
+        }
+
+        .program__item--highlight .program__dot {
+            background: var(--gold);
+            box-shadow: 0 0 12px rgba(218, 165, 32, 0.5);
+        }
+
+        .program__time {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gold);
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .program__info {
+            flex: 1;
+        }
+
+        .program__name {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .program__desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .program__item--break {
+            opacity: 0.5;
+        }
+
+        .program__item--break .program__dot {
+            border-color: var(--text-muted);
+        }
+
+        /* ===== PRICING ===== */
+        .pricing {
+            background: var(--bg-dark);
+        }
+
+        .pricing__grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+            margin-top: 56px;
+            align-items: start;
+        }
+
+        .pricing__card {
+            background: var(--gradient-gold-subtle);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 44px 36px;
+            position: relative;
+            transition: all 0.35s ease;
+        }
+
+        .pricing__card:hover {
+            border-color: var(--border-gold-hover);
+            transform: translateY(-4px);
+        }
+
+        .pricing__card--featured {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, rgba(218,165,32,0.12), rgba(255,215,0,0.04));
+        }
+
+        .pricing__card--featured:hover {
+            border-color: var(--gold-light);
+            box-shadow: 0 0 40px rgba(218, 165, 32, 0.15);
+        }
+
+        .pricing__badge {
+            position: absolute;
+            top: -14px;
+            right: 28px;
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 18px;
+            border-radius: 20px;
+        }
+
+        .pricing__name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .pricing__spots {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .pricing__price {
+            font-size: 52px;
+            font-weight: 900;
+            margin-bottom: 32px;
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pricing__list {
+            list-style: none;
+            margin-bottom: 36px;
+        }
+
+        .pricing__list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 15px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .pricing__list li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing__list-check {
+            color: var(--gold);
+            font-size: 14px;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .pricing__list li strong {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+
+        .btn-outline {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: transparent;
+            color: var(--gold);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 16px 32px;
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            box-shadow: 0 4px 24px rgba(218, 165, 32, 0.3);
+        }
+
+        .btn-primary-full {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: var(--gradient-gold);
+            color: #0a0a0a;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(218, 165, 32, 0.3);
+        }
+
+        .btn-primary-full:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(218, 165, 32, 0.5);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--bg-card);
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid rgba(218, 165, 32, 0.1);
+        }
+
+        .footer__text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer__brand {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .for-whom__grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .pricing__grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .location__gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .section {
+                padding: 72px 16px;
+            }
+
+            .hero__content {
+                padding: 0 16px;
+                margin-top: 48vh;
+                margin-bottom: 0;
+            }
+
+            .hero__title {
+                font-size: 17px;
+                line-height: 1.25;
+                margin-bottom: 24px;
+            }
+
+            .hero__logo {
+                font-size: 10px;
+                letter-spacing: 3px;
+                padding: 16px 16px;
+            }
+
+            .hero__meta {
+                gap: 8px;
+            }
+
+            .hero__meta-item {
+                font-size: 12px;
+                padding: 8px 14px;
+            }
+
+            .btn-primary {
+                padding: 16px 32px;
+                font-size: 14px;
+                letter-spacing: 1px;
+            }
+
+            .program__timeline {
+                padding-left: 32px;
+            }
+
+            .program__item {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .program__time {
+                min-width: auto;
+            }
+
+            .pricing__card {
+                padding: 32px 24px;
+            }
+
+            .pricing__price {
+                font-size: 42px;
+            }
+
+            .location__gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero__bg">
+            <img src="hero.png" alt="Infobiz Villa Bali" loading="eager">
+        </div>
+        <div class="hero__overlay"></div>
+        <div class="hero__logo">Bali Infobiz Villa</div>
+        <div class="hero__content">
+            <h1 class="hero__title">
+                Закрытая инфобиз встреча от <span>Саши Горевича</span> для тех, кто хочет на 1 день отключиться от операционки и заняться <span>стратегией своего прорыва в 2026</span>
+            </h1>
+        </div>
+        <div class="hero__bottom">
+            <div class="hero__meta">
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9734;</span>
+                    12 февраля 2026
+                </div>
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9906;</span>
+                    Чангу, Бали
+                </div>
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9201;</span>
+                    10:00 &mdash; 20:00
+                </div>
+                <div class="hero__meta-item">
+                    <span class="hero__meta-icon">&#9679;</span>
+                    15 мест
+                </div>
+            </div>
+            <a href="#pricing" class="btn-primary">Забронировать место</a>
+        </div>
+    </section>
+
+    <!-- FOR WHOM -->
+    <section class="section for-whom" id="for-whom">
+        <div class="container">
+            <span class="section__label fade-in">Для кого</span>
+            <h2 class="section__title fade-in">Кому подойдёт эта встреча</h2>
+            <div class="for-whom__grid">
+                <div class="for-whom__card fade-in">
+                    <div class="for-whom__card-icon">&#9889;</div>
+                    <h3 class="for-whom__card-title">Делаете запуски наощупь</h3>
+                    <p class="for-whom__card-text">Работаете один/одна, устали, не с кем посоветоваться. Нет системы — каждый запуск как первый. Хотите получить проверенный алгоритм и перестать тратить время на догадки. На ивенте разложите свой проект по полочкам и получите чёткий вектор действий.</p>
+                </div>
+                <div class="for-whom__card fade-in">
+                    <div class="for-whom__card-icon">&#9998;</div>
+                    <h3 class="for-whom__card-title">В точке выбора</h3>
+                    <p class="for-whom__card-text">Вышли из партнёрства или закрыли проект. «Висит в воздухе» вопрос что делать дальше и как развиваться. Нужна перезагрузка и свежий взгляд со стороны. За день структурируете хаос в голове, увидите точки роста и уйдёте с чётким планом на 2026.</p>
+                </div>
+                <div class="for-whom__card fade-in">
+                    <div class="for-whom__card-icon">&#9733;</div>
+                    <h3 class="for-whom__card-title">Ищете сильное окружение</h3>
+                    <p class="for-whom__card-text">Хотите быть «самым глупым в комнате» — там где все уже имеют результаты выше ваших. Устали от пустого нетворкинга и хотите коллабораций с сильными игроками. Познакомитесь с людьми которые «шарят и развиваются», найдёте партнёров и новые возможности.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOCATION -->
+    <section class="section location" id="location">
+        <div class="container">
+            <div class="location__header">
+                <span class="section__label fade-in">Локация</span>
+                <h2 class="section__title fade-in">Приватная вилла в сердце Чангу</h2>
+                <p class="section__subtitle fade-in">Целый день на закрытой вилле с бассейном, рабочими зонами и зонами отдыха. Атмосфера, где можно сосредоточиться на стратегии, не отвлекаясь на повседневные дела.</p>
+            </div>
+
+            <div class="location__gallery fade-in">
+                <div class="location__gallery-main">
+                    <img src="villa-exterior.png" alt="Вилла в Чангу - вид снаружи" loading="lazy">
+                </div>
+                <div class="location__gallery-grid">
+                    <div class="location__gallery-item">
+                        <img src="villa-pool.png" alt="Бассейн виллы" loading="lazy">
+                    </div>
+                    <div class="location__gallery-item">
+                        <img src="villa-living.png" alt="Гостиная виллы" loading="lazy">
+                    </div>
+                    <div class="location__gallery-item">
+                        <img src="villa-dining.png" alt="Обеденная зона" loading="lazy">
+                    </div>
+                    <div class="location__gallery-item">
+                        <img src="villa-pool-night.png" alt="Бассейн вечером" loading="lazy">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PROGRAM -->
+    <section class="section program" id="program">
+        <div class="container">
+            <span class="section__label fade-in">Программа</span>
+            <h2 class="section__title fade-in">Как пройдёт день</h2>
+            <p class="section__subtitle fade-in">Структурированная программа, в которой каждый блок работает на ваш результат.</p>
+
+            <div class="program__timeline fade-in">
+                <div class="program__item">
+                    <div class="program__dot"></div>
+                    <div class="program__time">10:00 &mdash; 10:30</div>
+                    <div class="program__info">
+                        <div class="program__name">Сбор участников + нетворкинг</div>
+                        <div class="program__desc">Знакомство, обмен контактами, первые связи</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--highlight">
+                    <div class="program__dot"></div>
+                    <div class="program__time">10:30 &mdash; 12:30</div>
+                    <div class="program__info">
+                        <div class="program__name">Контентный блок от Саши Горевича</div>
+                        <div class="program__desc">Стратегии, инсайты и практические фреймворки для роста в 2026</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--break">
+                    <div class="program__dot"></div>
+                    <div class="program__time">12:30 &mdash; 13:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Перерыв</div>
+                        <div class="program__desc">Неформальное общение</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--highlight">
+                    <div class="program__dot"></div>
+                    <div class="program__time">13:00 &mdash; 15:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Разбор №1</div>
+                        <div class="program__desc">Глубокий разбор проекта</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--break">
+                    <div class="program__dot"></div>
+                    <div class="program__time">15:00 &mdash; 16:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Обед</div>
+                        <div class="program__desc">Обед</div>
+                    </div>
+                </div>
+                <div class="program__item program__item--highlight">
+                    <div class="program__dot"></div>
+                    <div class="program__time">16:00 &mdash; 18:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Разбор №2</div>
+                        <div class="program__desc">Глубокий разбор проекта</div>
+                    </div>
+                </div>
+                <div class="program__item">
+                    <div class="program__dot"></div>
+                    <div class="program__time">18:00 &mdash; 18:30</div>
+                    <div class="program__info">
+                        <div class="program__name">Рефлексия</div>
+                        <div class="program__desc">Подведение итогов дня, ключевые выводы</div>
+                    </div>
+                </div>
+                <div class="program__item">
+                    <div class="program__dot"></div>
+                    <div class="program__time">18:30 &mdash; 22:00</div>
+                    <div class="program__info">
+                        <div class="program__name">Афтепати</div>
+                        <div class="program__desc">Кальян, общение, неформальный нетворкинг у бассейна</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="section pricing" id="pricing">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 8px;">
+                <span class="section__label fade-in">Тарифы</span>
+            </div>
+            <h2 class="section__title fade-in" style="text-align: center;">Выберите свой формат участия</h2>
+
+            <div class="pricing__grid">
+                <!-- Participant -->
+                <div class="pricing__card fade-in">
+                    <div class="pricing__name">Участник</div>
+                    <div class="pricing__spots">14 мест</div>
+                    <div class="pricing__price">$100</div>
+                    <ul class="pricing__list">
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Нетворкинг с сильным комьюнити
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            2 глубоких разбора проектов
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Контентный блок от Саши Горевича
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Фрукты, орехи
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Кальян
+                        </li>
+                    </ul>
+                    <a href="https://t.me/sashagorevych" class="btn-outline">Забронировать</a>
+                </div>
+
+                <!-- Featured -->
+                <div class="pricing__card pricing__card--featured fade-in">
+                    <div class="pricing__badge">Эксклюзив</div>
+                    <div class="pricing__name">Участник с разбором</div>
+                    <div class="pricing__spots">1 место</div>
+                    <div class="pricing__price">$1000</div>
+                    <ul class="pricing__list">
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Нетворкинг с сильным комьюнити
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            2 глубоких разбора проектов
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Контентный блок от Саши Горевича
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Фрукты, орехи
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            Кальян
+                        </li>
+                        <li>
+                            <span class="pricing__list-check">&#10003;</span>
+                            <strong>Персональный 2-часовой разбор вашего проекта перед всеми участниками</strong>
+                        </li>
+                    </ul>
+                    <a href="https://t.me/sashagorevych" class="btn-primary-full">Забронировать</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p class="footer__text">&copy; 2026 <span class="footer__brand">Bali Infobiz Villa</span>. Все права защищены.</p>
+    </footer>
+
+    <!-- SCROLL ANIMATIONS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -40px 0px'
+            });
+
+            document.querySelectorAll('.fade-in').forEach(function(el) {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+</body>
+</html>
