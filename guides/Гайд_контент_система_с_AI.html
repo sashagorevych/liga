@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Как создать контент-систему с помощью AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface-2: #1a1a26;
+  --surface-3: #22222f;
+  --gold: #d4a843;
+  --gold-dim: #b8922e;
+  --gold-glow: rgba(212, 168, 67, 0.15);
+  --text: #e8e6e1;
+  --text-dim: #8a8690;
+  --text-muted: #5a5760;
+  --accent: #6c63ff;
+  --green: #4ade80;
+  --green-dim: rgba(74, 222, 128, 0.12);
+  --border: rgba(255,255,255,0.06);
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.noise {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px 120px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  text-align: center;
+  padding: 60px 0 50px;
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 2px;
+  background: var(--gold);
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 16px;
+  background: var(--gold-glow);
+  border: 1px solid rgba(212,168,67,0.25);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+h1 {
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+h1 span { color: var(--gold); }
+
+.subtitle {
+  font-size: 17px;
+  color: var(--text-dim);
+  font-weight: 300;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ===== INTRO ===== */
+.intro-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin: 50px 0 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.intro-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.intro-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--gold);
+}
+
+.intro-card p {
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.intro-card .highlight {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(12px);
+  padding: 16px 0;
+  margin: 0 -24px;
+  padding-left: 24px;
+  padding-right: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress-segment {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: 4px;
+  transition: background 0.4s ease;
+  cursor: pointer;
+}
+
+.progress-segment.active {
+  background: var(--gold);
+}
+
+.progress-segment.completed {
+  background: var(--green);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.progress-label .current { color: var(--gold); font-weight: 500; }
+
+/* ===== STEPS ===== */
+.step {
+  margin: 40px 0;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.step.dimmed { opacity: 0.3; pointer-events: none; }
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  transition: all 0.3s;
+}
+
+.step.active .step-number {
+  background: var(--gold-glow);
+  border-color: rgba(212,168,67,0.3);
+  color: var(--gold);
+}
+
+.step.done .step-number {
+  background: var(--green-dim);
+  border-color: rgba(74,222,128,0.2);
+  color: var(--green);
+}
+
+.step-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+
+.step-time {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.step-time svg {
+  width: 13px; height: 13px;
+  vertical-align: -1px;
+  margin-right: 3px;
+}
+
+.step-content {
+  margin-left: 64px;
+  display: none;
+}
+
+.step.active .step-content { display: block; }
+
+.step-desc {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin-bottom: 20px;
+  line-height: 1.7;
+}
+
+/* ===== TASK CARDS ===== */
+.task-group {
+  margin-bottom: 24px;
+}
+
+.task-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.task:hover {
+  border-color: rgba(212,168,67,0.2);
+  background: var(--surface-2);
+}
+
+.task.checked {
+  border-color: rgba(74,222,128,0.15);
+}
+
+.task.checked .task-text { color: var(--text-muted); text-decoration: line-through; }
+
+.checkbox {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-top: 1px;
+}
+
+.task.checked .checkbox {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.checkbox svg {
+  width: 14px; height: 14px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: var(--bg);
+}
+
+.task.checked .checkbox svg { opacity: 1; }
+
+.task-text {
+  font-size: 14.5px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+/* ===== PROMPT BLOCKS ===== */
+.prompt-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.prompt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.prompt-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.prompt-label svg { width: 14px; height: 14px; }
+
+.copy-btn {
+  padding: 5px 12px;
+  background: rgba(212,168,67,0.12);
+  border: 1px solid rgba(212,168,67,0.2);
+  border-radius: 6px;
+  color: var(--gold);
+  font-size: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover { background: rgba(212,168,67,0.2); }
+.copy-btn.copied { background: var(--green-dim); color: var(--green); border-color: rgba(74,222,128,0.2); }
+
+.prompt-body {
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.prompt-body::-webkit-scrollbar { width: 4px; }
+.prompt-body::-webkit-scrollbar-track { background: transparent; }
+.prompt-body::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+
+/* ===== TIPS ===== */
+.tip {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(212,168,67,0.06);
+  border: 1px solid rgba(212,168,67,0.12);
+  border-radius: 12px;
+  margin: 16px 0;
+}
+
+.tip-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  margin-top: 1px;
+}
+
+.tip-text {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.tip-text strong { color: var(--text); }
+
+/* ===== COMPLETE BUTTON ===== */
+.step-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-dim);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 16px;
+}
+
+.step-complete-btn:hover {
+  background: var(--gold-glow);
+  border-color: rgba(212,168,67,0.25);
+  color: var(--gold);
+}
+
+.step-complete-btn svg { width: 16px; height: 16px; }
+
+/* ===== FOOTER ===== */
+.footer-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-top: 60px;
+  text-align: center;
+}
+
+.footer-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.footer-card p {
+  color: var(--text-dim);
+  font-size: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.footer-tag {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 8px 20px;
+  background: var(--gold-glow);
+  border: 1px solid rgba(212,168,67,0.2);
+  border-radius: 100px;
+  font-size: 14px;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .container { padding: 20px 16px 100px; }
+  .header { padding: 40px 0 40px; }
+  .step-content { margin-left: 0; margin-top: 16px; }
+  .step-header { gap: 12px; }
+  .step-number { width: 40px; height: 40px; font-size: 16px; border-radius: 10px; }
+  .step-title { font-size: 18px; }
+  .prompt-body { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<div class="container">
+
+  <header class="header">
+    <div class="badge">Инструкция для учеников</div>
+    <h1>Как создать свою <span>контент-систему</span> с помощью AI</h1>
+    <p class="subtitle">Пошаговый гайд: от подготовки материалов до готовой системы для Telegram-канала за 2–3 часа</p>
+  </header>
+
+  <div class="intro-card">
+    <h2>Что ты получишь в итоге</h2>
+    <p>
+      Полноценный документ с <span class="highlight">контент-системой</span> для своего Telegram-канала: позиционирование, tone of voice, рубрикатор, шаблоны постов, механики роста, чек-лист для ежедневной генерации тем. Плюс <span class="highlight">готовый AI-ассистент</span> в Claude, который знает твой стиль и помогает писать посты каждый день.
+    </p>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-label">
+      <span class="current" id="progressCurrent">Шаг 1 из 7</span>
+      <span id="progressPercent">0%</span>
+    </div>
+  </div>
+
+  <div id="steps">
+
+    <!-- ===== STEP 1 ===== -->
+    <div class="step active" data-step="1">
+      <div class="step-header" onclick="toggleStep(1)">
+        <div class="step-number">1</div>
+        <div>
+          <div class="step-title">Подготовь сырой материал</div>
+          <div class="step-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            30–40 минут
+          </div>
+        </div>
+      </div>
+      <div class="step-content">
+        <p class="step-desc">Прежде чем идти в AI — подготовь «сырьё». Чем больше реального материала ты дашь, тем точнее будет система. Не нужно красиво оформлять — можно голосовыми, тезисами, как угодно.</p>
+
+        <div class="task-group">
+          <div class="task-group-title">Что подготовить</div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Архив своих постов</strong> — экспортируй последние 50–100 постов из Telegram (через Telegram Desktop → Export chat history → JSON). Это нужно для анализа твоего стиля.</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>5 своих ценностей</strong> — запиши голосовое или текст: что для тебя важно в жизни и бизнесе (не «на камеру», а как реально думаешь)</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Острые грани</strong> — за какие позиции ты готов стоять публично? Что тебя бесит в твоей нише? Что ты считаешь неправильным? (2–5 тем)</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Личные границы</strong> — что ты готов показывать, а что нет? (отношения, доход, здоровье, политика и т.д.)</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Отзывы клиентов / custdev</strong> — 3–5 отзывов или ответов от клиентов: за что тебя ценят, что в тебе уникального, почему пришли</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>2–3 референсных канала</strong> — найди каналы, на которые ты сам подписан и читаешь с удовольствием. Запиши, что именно нравится (не стиль, а эффект: «чувствую связь», «интересно следить»). Сделай 5–10 скриншотов постов, которые цепляют.</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Продуктовая линейка</strong> — перечисли свои текущие и планируемые продукты, для кого они, в каком ценовом сегменте</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Жизненные сюжеты</strong> — о чём в жизни ты готов рассказывать? (хобби, спорт, семья, путешествия, здоровье, бизнес-закулисье)</div>
+          </div>
+        </div>
+
+        <div class="tip">
+          <div class="tip-icon">💡</div>
+          <div class="tip-text"><strong>Лайфхак:</strong> не пиши — наговори. Открой диктофон и ответь на каждый пункт голосом за 2–3 минуты. Потом загрузи аудио в Claude и попроси расшифровать.</div>
+        </div>
+
+        <button class="step-complete-btn" onclick="completeStep(1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Готово, иду дальше
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 2 ===== -->
+    <div class="step" data-step="2">
+      <div class="step-header" onclick="toggleStep(2)">
+        <div class="step-number">2</div>
+        <div>
+          <div class="step-title">Создай проект в Claude</div>
+          <div class="step-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            5 минут
+          </div>
+        </div>
+      </div>
+      <div class="step-content">
+        <p class="step-desc">Claude Projects — это как отдельное рабочее пространство, где AI помнит весь контекст. Именно тут будет жить твоя контент-система.</p>
+
+        <div class="task-group">
+          <div class="task-group-title">Действия</div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Зайди на <strong>claude.ai</strong> (нужна подписка Pro)</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">В левой панели нажми <strong>Projects → Create Project</strong></div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Назови проект: <strong>«Контент-система [твой канал]»</strong></div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Загрузи в <strong>Knowledge</strong> проекта: архив постов (JSON), отзывы клиентов, скриншоты референсных каналов</div>
+          </div>
+        </div>
+
+        <div class="tip">
+          <div class="tip-icon">💡</div>
+          <div class="tip-text"><strong>Почему проект, а не обычный чат:</strong> в проекте Claude имеет доступ ко всем загруженным файлам в каждом новом чате. Не нужно каждый раз заново объяснять контекст.</div>
+        </div>
+
+        <button class="step-complete-btn" onclick="completeStep(2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Готово, иду дальше
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 3 ===== -->
+    <div class="step" data-step="3">
+      <div class="step-header" onclick="toggleStep(3)">
+        <div class="step-number">3</div>
+        <div>
+          <div class="step-title">Проведи стратегическую сессию с AI</div>
+          <div class="step-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            40–60 минут
+          </div>
+        </div>
+      </div>
+      <div class="step-content">
+        <p class="step-desc">Это главный шаг. Ты даёшь Claude всю подготовленную информацию и просишь провести с тобой стратегическую сессию. Используй этот промпт как стартовую точку:</p>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <div class="prompt-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Промпт для стратсессии
+            </div>
+            <button class="copy-btn" onclick="copyPrompt(this)">Копировать</button>
+          </div>
+          <div class="prompt-body">Я хочу создать контент-систему для своего Telegram-канала.
+
+Цель: системно вести канал, растить аудиторию, прогревать к моим продуктам — и при этом делать канал живым, интересным, чтобы люди хотели его читать каждый день.
+
+Я загрузил в проект:
+— Архив своих постов (для анализа стиля)
+— Отзывы клиентов
+— Скриншоты каналов, которые мне нравятся
+
+Проведи со мной стратегическую сессию. Задай мне по очереди вопросы на каждую из этих тем:
+1. Мои ценности (что для меня важно в жизни и бизнесе)
+2. Мои острые грани (за что готов стоять публично)
+3. Личные границы (что готов показывать, а что нет)
+4. Жизненные сюжеты (о чём готов рассказывать)
+5. Портрет аудитории (кто читает, кого хочу видеть)
+6. Продукты (что продаю, для кого)
+7. Цели канала (подписчики, вовлечение, продажи)
+
+Задавай вопросы по одной теме за раз. Когда я отвечу — переходи к следующей. Не торопись.
+
+Также проанализируй мой архив постов и определи:
+— Мой текущий tone of voice
+— Какие посты заходят лучше всего
+— Чего не хватает в контенте
+
+И проанализируй референсные каналы, которые я загрузил — определи, какие эффекты мне нравятся и как адаптировать их под мой стиль.</div>
+        </div>
+
+        <div class="tip">
+          <div class="tip-icon">💡</div>
+          <div class="tip-text"><strong>Важно:</strong> не пытайся дать всё за один раз. Отвечай на вопросы Claude развёрнуто — голосом или текстом. Чем больше живого материала, тем точнее будет результат. Можно наговаривать ответы голосом прямо в Claude.</div>
+        </div>
+
+        <button class="step-complete-btn" onclick="completeStep(3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Готово, иду дальше
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 4 ===== -->
+    <div class="step" data-step="4">
+      <div class="step-header" onclick="toggleStep(4)">
+        <div class="step-number">4</div>
+        <div>
+          <div class="step-title">Собери контент-систему</div>
+          <div class="step-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            20–30 минут
+          </div>
+        </div>
+      </div>
+      <div class="step-content">
+        <p class="step-desc">После стратсессии у Claude достаточно информации, чтобы собрать полноценную систему. Попроси сгенерировать документ:</p>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <div class="prompt-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Промпт для сборки системы
+            </div>
+            <button class="copy-btn" onclick="copyPrompt(this)">Копировать</button>
+          </div>
+          <div class="prompt-body">Теперь на основе всего, что мы обсудили, создай полноценную контент-систему для моего канала в формате документа (.docx). 
+
+Включи:
+1. Миссия и позиционирование — кто я для аудитории, формула канала, уникальность
+2. Ценности и острые грани — что транслирую, за что стою
+3. Tone of Voice — как я говорю, фирменные выражения, запреты
+4. Рубрикатор — 6–8 типов контента с описанием, примерами и пропорциями
+5. Пропорции и ритм — сколько какого контента в неделю
+6. Структуры и шаблоны постов — скелеты для каждого типа
+7. Ежедневный чек-лист — вопросы для быстрого поиска темы
+8. Механики роста — как привлекать подписчиков органически
+9. Личные границы — что можно и нельзя
+10. План на первые 2 недели — конкретные дни с типами постов
+
+Сделай документ структурированным, красивым, с таблицами.</div>
+        </div>
+
+        <div class="task-group">
+          <div class="task-group-title">Проверь результат</div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Прочитай документ — узнаёшь ли ты себя в tone of voice?</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Рубрики отражают то, о чём ты реально готов писать?</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Границы корректны — ничего лишнего не включено?</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Если что-то не так — скажи Claude, что исправить. Итерируй до тех пор, пока документ не будет «твой»</div>
+          </div>
+        </div>
+
+        <button class="step-complete-btn" onclick="completeStep(4)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Готово, иду дальше
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 5 ===== -->
+    <div class="step" data-step="5">
+      <div class="step-header" onclick="toggleStep(5)">
+        <div class="step-number">5</div>
+        <div>
+          <div class="step-title">Создай AI-ассистента для постов</div>
+          <div class="step-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            15 минут
+          </div>
+        </div>
+      </div>
+      <div class="step-content">
+        <p class="step-desc">Теперь превращаем систему в рабочий инструмент. Попроси Claude написать промпт-инструкцию для нового проекта, который будет помогать писать посты каждый день.</p>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <div class="prompt-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Промпт для создания ассистента
+            </div>
+            <button class="copy-btn" onclick="copyPrompt(this)">Копировать</button>
+          </div>
+          <div class="prompt-body">На основе контент-системы, которую мы создали, напиши мне системную инструкцию (system prompt) для отдельного проекта-ассистента в Claude.
+
+Этот ассистент должен:
+— Знать мой стиль, тон, ценности, рубрики и границы
+— Помогать придумывать темы постов (через чек-лист вопросов)
+— Писать посты в моём стиле по заданной теме (2–3 варианта)
+— Оформлять мои голосовые и мысли в готовые посты
+— Подсказывать, какой тип поста нужен для баланса рубрик
+— Соблюдать правило контраста (после серьёзного — лёгкий)
+
+Напиши инструкцию в формате .md файла, который я смогу вставить в Project Instructions нового проекта.</div>
+        </div>
+
+        <div class="task-group">
+          <div class="task-group-title">Настройка ассистента</div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Создай <strong>новый проект</strong> в Claude (отдельный от стратсессии)</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Вставь сгенерированную инструкцию в <strong>Project Instructions</strong> (кнопка «Set custom instructions»)</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Загрузи в <strong>Knowledge</strong>: контент-систему (docx) и архив постов (json)</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text">Протестируй: напиши «помоги придумать тему поста» — и проверь, задаёт ли правильные вопросы</div>
+          </div>
+        </div>
+
+        <button class="step-complete-btn" onclick="completeStep(5)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Готово, иду дальше
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 6 ===== -->
+    <div class="step" data-step="6">
+      <div class="step-header" onclick="toggleStep(6)">
+        <div class="step-number">6</div>
+        <div>
+          <div class="step-title">Начни публиковать</div>
+          <div class="step-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            15–20 минут в день
+          </div>
+        </div>
+      </div>
+      <div class="step-content">
+        <p class="step-desc">Система готова. Ассистент настроен. Теперь — действие. Каждый день 15–20 минут: открываешь ассистента, скидываешь мысль/фото/скрин, получаешь пост.</p>
+
+        <div class="task-group">
+          <div class="task-group-title">Ежедневная рутина</div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Утром:</strong> открой чек-лист из контент-системы, ответь на первый вопрос, где есть живой ответ</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Скинь материал ассистенту:</strong> голосовое, фото, скрин, мысль в 2 строки — что угодно</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Выбери вариант</strong> из 2–3 предложенных, доработай если нужно — и публикуй</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Следи за балансом:</strong> чередуй лайв → экспертный → бытовой. Ритм важнее идеального текста</div>
+          </div>
+        </div>
+
+        <div class="tip">
+          <div class="tip-icon">💡</div>
+          <div class="tip-text"><strong>Главное правило:</strong> не пытайся сделать каждый пост идеальным. Лучше живой пост за 10 минут, чем идеальный за 2 часа. Аудитория ценит постоянство и энергию, а не шлифовку.</div>
+        </div>
+
+        <button class="step-complete-btn" onclick="completeStep(6)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Готово, иду дальше
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== STEP 7 ===== -->
+    <div class="step" data-step="7">
+      <div class="step-header" onclick="toggleStep(7)">
+        <div class="step-number">7</div>
+        <div>
+          <div class="step-title">Итерируй систему</div>
+          <div class="step-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            30 минут раз в месяц
+          </div>
+        </div>
+      </div>
+      <div class="step-content">
+        <p class="step-desc">Контент-система — живой документ. Через 2–4 недели регулярных публикаций ты увидишь, что работает, а что нет. Обнови систему.</p>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <div class="prompt-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Промпт для итерации
+            </div>
+            <button class="copy-btn" onclick="copyPrompt(this)">Копировать</button>
+          </div>
+          <div class="prompt-body">Прошёл месяц с начала новой контент-системы. Вот что я заметил:
+
+— Что заходит хорошо: [описать]
+— Что заходит плохо: [описать]
+— Какие рубрики я забросил: [описать]
+— Что изменилось в жизни/бизнесе: [описать]
+
+Помоги обновить контент-систему:
+1. Скорректируй пропорции рубрик
+2. Добавь новые темы, которые появились
+3. Убери то, что не работает
+4. Обнови tone of voice, если он эволюционировал
+5. Предложи новые механики роста на следующий месяц</div>
+        </div>
+
+        <div class="task-group">
+          <div class="task-group-title">Метрики для отслеживания</div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Подписчики:</strong> сколько прибавилось за месяц?</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Просмотры:</strong> какой средний охват поста?</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Реакции:</strong> какие посты получают больше всего эмодзи?</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Шеры:</strong> какие посты пересылают чаще всего?</div>
+          </div>
+
+          <div class="task" onclick="toggleTask(this)">
+            <div class="checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="task-text"><strong>Лиды:</strong> сколько обращений пришло из канала?</div>
+          </div>
+        </div>
+
+        <button class="step-complete-btn" onclick="completeStep(7)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Система готова! 🔥
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-card" id="footerCard" style="display:none;">
+    <h3>Контент-система собрана 🏆</h3>
+    <p>Теперь у тебя есть всё: стратегия, рубрики, тон, шаблоны и AI-ассистент. Осталось одно — начать публиковать. Каждый день. По 15 минут.</p>
+    <div class="footer-tag">Создано по методологии Высшей Лиги</div>
+  </div>
+
+</div>
+
+<script>
+const TOTAL_STEPS = 7;
+let completedSteps = new Set();
+let currentStep = 1;
+
+function initProgress() {
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = '';
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'progress-segment' + (i === 1 ? ' active' : '');
+    seg.dataset.step = i;
+    seg.onclick = () => toggleStep(i);
+    bar.appendChild(seg);
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const segments = document.querySelectorAll('.progress-segment');
+  segments.forEach(seg => {
+    const s = parseInt(seg.dataset.step);
+    seg.className = 'progress-segment';
+    if (completedSteps.has(s)) seg.classList.add('completed');
+    else if (s === currentStep) seg.classList.add('active');
+  });
+
+  const pct = Math.round((completedSteps.size / TOTAL_STEPS) * 100);
+  document.getElementById('progressCurrent').textContent = `Шаг ${currentStep} из ${TOTAL_STEPS}`;
+  document.getElementById('progressPercent').textContent = pct + '%';
+}
+
+function toggleStep(n) {
+  if (currentStep === n) return;
+  document.querySelectorAll('.step').forEach(s => {
+    s.classList.remove('active');
+    if (completedSteps.has(parseInt(s.dataset.step))) s.classList.add('done');
+  });
+  const step = document.querySelector(`.step[data-step="${n}"]`);
+  if (step) {
+    step.classList.add('active');
+    currentStep = n;
+    updateProgress();
+    setTimeout(() => step.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+}
+
+function completeStep(n) {
+  completedSteps.add(n);
+  const step = document.querySelector(`.step[data-step="${n}"]`);
+  step.classList.add('done');
+
+  if (n < TOTAL_STEPS) {
+    toggleStep(n + 1);
+  } else {
+    step.classList.remove('active');
+    updateProgress();
+    document.getElementById('footerCard').style.display = 'block';
+    setTimeout(() => document.getElementById('footerCard').scrollIntoView({ behavior: 'smooth' }), 200);
+  }
+}
+
+function toggleTask(el) {
+  el.classList.toggle('checked');
+}
+
+function copyPrompt(btn) {
+  const text = btn.closest('.prompt-block').querySelector('.prompt-body').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Скопировано!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Копировать';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+initProgress();
+</script>
+
+</body>
+</html>
