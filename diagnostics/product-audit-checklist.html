@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Аудит продукта — Высшая Лига</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f0f13;
+      color: #e8e8e8;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .header-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #c9a84c, #e8c96a);
+      color: #0f0f13;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    h1 span { color: #c9a84c; }
+    .subtitle {
+      color: #888;
+      font-size: 15px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Score Dashboard ── */
+    .dashboard {
+      background: #1a1a22;
+      border: 1px solid #2a2a38;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .score-ring {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      flex-shrink: 0;
+    }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring circle {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+    .ring-bg { stroke: #2a2a38; }
+    .ring-fill {
+      stroke: #c9a84c;
+      stroke-dasharray: 251.2;
+      stroke-dashoffset: 251.2;
+      transition: stroke-dashoffset 0.6s ease, stroke 0.4s;
+    }
+    .score-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .score-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .score-total { font-size: 11px; color: #888; }
+
+    .dashboard-right { flex: 1; min-width: 240px; }
+    .dash-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .dash-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; }
+
+    .progress-bar-wrap {
+      background: #2a2a38;
+      border-radius: 8px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c9a84c, #e8c96a);
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .dash-stats {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 20px; font-weight: 800; color: #c9a84c; }
+    .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+
+    .verdict {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ── Sections ── */
+    .section {
+      background: #1a1a22;
+      border: 1px solid #2a2a38;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .section:hover { border-color: #3a3a4a; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: #1e1e28; }
+
+    .section-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .section-meta { flex: 1; }
+    .section-title { font-size: 15px; font-weight: 700; color: #fff; }
+    .section-desc { font-size: 12px; color: #777; margin-top: 2px; }
+
+    .section-score-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: #2a2a38;
+      color: #888;
+      white-space: nowrap;
+      transition: all 0.3s;
+    }
+
+    .section-chevron {
+      color: #555;
+      font-size: 18px;
+      transition: transform 0.3s;
+      margin-left: 8px;
+    }
+    .section.open .section-chevron { transform: rotate(180deg); }
+
+    .section-mini-bar {
+      height: 3px;
+      background: #2a2a38;
+      overflow: hidden;
+    }
+    .section-mini-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c9a84c, #e8c96a);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .section-body {
+      display: none;
+      padding: 8px 24px 24px;
+    }
+    .section.open .section-body { display: block; }
+
+    /* ── Items ── */
+    .category-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #555;
+      margin: 20px 0 10px;
+    }
+
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 2px;
+    }
+    .item:hover { background: #222230; }
+
+    .item-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #3a3a4a;
+      border-radius: 5px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .item.checked .item-checkbox {
+      background: #c9a84c;
+      border-color: #c9a84c;
+    }
+    .item.checked .item-checkbox::after {
+      content: '✓';
+      color: #0f0f13;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .item-content { flex: 1; }
+    .item-text {
+      font-size: 14px;
+      color: #ccc;
+      line-height: 1.4;
+      transition: color 0.2s;
+    }
+    .item.checked .item-text {
+      color: #666;
+      text-decoration: line-through;
+    }
+    .item-note {
+      font-size: 12px;
+      color: #555;
+      margin-top: 3px;
+    }
+
+    .item-weight {
+      font-size: 11px;
+      color: #555;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .item.checked .item-weight { color: #c9a84c; }
+
+    /* ── Priority badges ── */
+    .priority {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .p-critical { background: #3d1a1a; color: #ff6b6b; }
+    .p-high { background: #2d2010; color: #ffb347; }
+    .p-medium { background: #1a2510; color: #8bc34a; }
+
+    /* ── Reset button ── */
+    .footer-actions {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid #3a3a4a;
+      color: #888;
+    }
+    .btn-ghost:hover { border-color: #c9a84c; color: #c9a84c; }
+    .btn-gold {
+      background: linear-gradient(135deg, #c9a84c, #e8c96a);
+      color: #0f0f13;
+    }
+    .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    @media print {
+      body { background: #fff; color: #000; padding: 20px; }
+      .section { border: 1px solid #ccc; }
+      .section-body { display: block !important; }
+      .btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">🔍 Аудит продукта</div>
+    <h1>Чеклист проверки<br><span>продукта «Высшая Лига»</span></h1>
+    <p class="subtitle">Пройди все блоки и получи объективную оценку — что работает, что нужно усилить</p>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard">
+    <div class="score-ring">
+      <svg viewBox="0 0 100 100" width="100" height="100">
+        <circle class="ring-bg" cx="50" cy="50" r="40"/>
+        <circle class="ring-fill" id="ringFill" cx="50" cy="50" r="40"/>
+      </svg>
+      <div class="score-label">
+        <div class="score-num" id="scoreNum">0</div>
+        <div class="score-total" id="scoreTotal">/ 0</div>
+      </div>
+    </div>
+    <div class="dashboard-right">
+      <div class="dash-title">Общий прогресс аудита</div>
+      <div class="dash-subtitle" id="verdictText">Начни проверять — отмечай выполненные пункты</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+      <div class="dash-stats">
+        <div class="stat">
+          <div class="stat-num" id="statChecked">0</div>
+          <div class="stat-label">отмечено</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label">всего</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="statPct">0%</div>
+          <div class="stat-label">готовность</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sections will be injected by JS -->
+  <div id="sectionsContainer"></div>
+
+  <div class="footer-actions">
+    <button class="btn btn-ghost" onclick="resetAll()">↺ Сбросить всё</button>
+    &nbsp;&nbsp;
+    <button class="btn btn-gold" onclick="showResults()">Смотреть результаты →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     RESULTS OVERLAY
+══════════════════════════════════════════ -->
+<div id="resultsOverlay" style="display:none; position:fixed; inset:0; background:#0f0f13; z-index:1000; overflow-y:auto; padding:60px 20px 100px;">
+  <div style="max-width:740px; margin:0 auto;">
+
+    <!-- Back -->
+    <button onclick="closeResults()" style="background:transparent;border:1.5px solid #3a3a4a;color:#888;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:40px;font-weight:600;">← Вернуться к чеклисту</button>
+
+    <!-- Score hero -->
+    <div style="text-align:center; margin-bottom:48px;">
+      <div id="resScoreCircle" style="width:140px;height:140px;margin:0 auto 24px;position:relative;">
+        <svg viewBox="0 0 100 100" width="140" height="140" style="transform:rotate(-90deg)">
+          <circle fill="none" stroke="#2a2a38" stroke-width="7" cx="50" cy="50" r="42"/>
+          <circle id="resRingFill" fill="none" stroke="#c9a84c" stroke-width="7" stroke-linecap="round"
+                  cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"
+                  style="transition:stroke-dashoffset 1s ease, stroke 0.5s;"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div id="resPct" style="font-size:34px;font-weight:900;color:#fff;line-height:1;">0%</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">готовность</div>
+        </div>
+      </div>
+      <div id="resTitle" style="font-size:26px;font-weight:800;color:#fff;margin-bottom:10px;"></div>
+      <div id="resSubtitle" style="font-size:15px;color:#888;max-width:480px;margin:0 auto;"></div>
+    </div>
+
+    <!-- Section scores -->
+    <div style="background:#1a1a22;border:1px solid #2a2a38;border-radius:14px;padding:24px 28px;margin-bottom:32px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#555;margin-bottom:20px;">Результаты по блокам</div>
+      <div id="resSectionBars"></div>
+    </div>
+
+    <!-- Top 5 recommendations -->
+    <div style="margin-bottom:32px;">
+      <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;">🔥 5 срочных рекомендаций</div>
+      <div style="font-size:13px;color:#666;margin-bottom:24px;">Самые критичные незакрытые пункты — исправь их в первую очередь</div>
+      <div id="resRecs"></div>
+    </div>
+
+    <!-- What's done well -->
+    <div id="resGoodWrap" style="margin-bottom:40px; display:none;">
+      <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;">✅ Что уже сильно</div>
+      <div style="font-size:13px;color:#666;margin-bottom:20px;">Блоки, где у тебя 80%+ — можешь не трогать сейчас</div>
+      <div id="resGood"></div>
+    </div>
+
+    <div style="text-align:center;">
+      <button onclick="closeResults()" style="background:linear-gradient(135deg,#c9a84c,#e8c96a);color:#0f0f13;border:none;padding:14px 36px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">Вернуться и доработать →</button>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    id: 'product_logic',
+    icon: '📦',
+    color: '#1a2535',
+    iconColor: '#3a6bbf',
+    title: 'Продуктовая логика',
+    desc: 'Структура, тарифы, ценностное предложение',
+    categories: [
+      {
+        label: 'Структура продукта',
+        items: [
+          { text: 'Есть чёткая линейка тарифов (START / PRO / VIP) с понятными различиями', note: 'Клиент сразу понимает, что входит в каждый тариф', w: 3, p: 'critical' },
+          { text: 'Каждый тариф закрывает конкретный сегмент ЦА', note: 'START → новичок, PRO → застрявший, VIP → партнёр', w: 3, p: 'critical' },
+          { text: 'Есть логика апсейла: клиент понимает, зачем переходить на следующий тариф', w: 2, p: 'high' },
+          { text: 'Сформулирован главный результат программы (что получает клиент за X месяцев)', w: 3, p: 'critical' },
+        ]
+      },
+      {
+        label: 'Ценность и трансформация',
+        items: [
+          { text: 'Есть конкретные кейсы/результаты по каждому тарифу (с цифрами)', note: 'Не «помогаем расти», а «с $2k до $8k за 3 месяца»', w: 3, p: 'critical' },
+          { text: 'Чётко сформулирована трансформация: «из точки А в точку Б»', w: 2, p: 'high' },
+          { text: 'Есть понимание, чем продукт отличается от конкурентов / коучинга / других курсов', w: 2, p: 'high' },
+          { text: 'VIP-тариф имеет явный «неожиданный элемент», который невозможно купить отдельно', w: 1, p: 'medium' },
+        ]
+      },
+      {
+        label: 'Ценообразование',
+        items: [
+          { text: 'Цена каждого тарифа соответствует воспринимаемой ценности', w: 2, p: 'high' },
+          { text: 'Есть объяснение, почему VIP стоит в 2–3x дороже PRO', w: 2, p: 'high' },
+          { text: 'Тест: клиент может с первого раза назвать стоимость каждого тарифа', w: 1, p: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'audience',
+    icon: '👥',
+    color: '#1a2530',
+    iconColor: '#2a9d6a',
+    title: 'Целевая аудитория',
+    desc: 'Сегменты, портреты, боли, триггеры',
+    categories: [
+      {
+        label: 'Сегментация',
+        items: [
+          { text: 'Чётко описаны 3 сегмента: уровень дохода, боль, цель, возражение', w: 3, p: 'critical' },
+          { text: 'Для каждого сегмента есть список триггерных фраз (что говорит клиент на диагностике)', w: 2, p: 'high' },
+          { text: 'Понятно, кто НЕ является целевым клиентом (антипортрет)', w: 2, p: 'high' },
+        ]
+      },
+      {
+        label: 'Глубина понимания ЦА',
+        items: [
+          { text: 'Проведено 10+ кастдевов / диагностик с реальными клиентами', note: 'Боли записаны дословно, не интерпретированы', w: 3, p: 'critical' },
+          { text: 'Есть анализ «почему купили» vs «почему не купили»', w: 2, p: 'high' },
+          { text: 'Боли сегментов обновлялись в последние 3 месяца', w: 1, p: 'medium' },
+          { text: 'Команда (диагносты) знает портреты наизусть — может воспроизвести без подсказки', w: 2, p: 'high' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'sales',
+    icon: '🎯',
+    color: '#241a1a',
+    iconColor: '#c9a84c',
+    title: 'Продажи и диагностики',
+    desc: 'Конверсия, скрипты, команда диагностов',
+    categories: [
+      {
+        label: 'Метрики конверсии',
+        items: [
+          { text: 'Конверсия диагностика → продажа: 40%+ (целевая)', note: 'Если ниже 35% — проблема в скрипте или квалификации', w: 3, p: 'critical' },
+          { text: 'Показ на диагностику: 75%+ (записавшиеся → пришедшие)', w: 2, p: 'high' },
+          { text: 'Средний чек €3,500+ (или соответствует цели потока)', w: 2, p: 'high' },
+          { text: 'Ведётся CRM / таблица каждой диагностики с результатом', w: 2, p: 'high' },
+        ]
+      },
+      {
+        label: 'Скрипты и технология',
+        items: [
+          { text: 'Есть задокументированный скрипт диагностики (все 8 этапов)', w: 3, p: 'critical' },
+          { text: 'Отработаны топ-5 возражений: «дорого», «подумаю», «не готов», «нет времени», «не уверен в результате»', w: 3, p: 'critical' },
+          { text: 'Есть скрипт дожима после диагностики (follow-up в 24–48 часов)', w: 2, p: 'high' },
+          { text: 'Диагносты знают, как правильно квалифицировать клиента и отказывать неподходящим', w: 2, p: 'high' },
+        ]
+      },
+      {
+        label: 'Команда диагностов',
+        items: [
+          { text: 'Диагносты прошли адаптацию (минимум 5 диагностик под наблюдением)', w: 2, p: 'high' },
+          { text: 'Есть система обратной связи: куратор разбирает диагностики еженедельно', w: 2, p: 'high' },
+          { text: 'Метрики диагностов отслеживаются и видны всей команде', w: 1, p: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'marketing',
+    icon: '📣',
+    color: '#1a1a2d',
+    iconColor: '#7b5ea7',
+    title: 'Маркетинг и трафик',
+    desc: 'Воронка, контент, источники заявок',
+    categories: [
+      {
+        label: 'Воронка',
+        items: [
+          { text: 'Есть понятная входная точка для ЦА (лид-магнит, вебинар, прямой оффер)', w: 3, p: 'critical' },
+          { text: 'Квалификация заявок работает до диагностики (анкета, фильтр)', note: 'Не тратим время на нецелевых людей', w: 2, p: 'high' },
+          { text: 'Есть минимум 2 источника трафика (не зависим от одного канала)', w: 2, p: 'high' },
+          { text: 'Стоимость привлечения одного клиента (CAC) известна и допустима', w: 2, p: 'high' },
+        ]
+      },
+      {
+        label: 'Контент и позиционирование',
+        items: [
+          { text: 'Регулярный контент выходит (минимум 3x в неделю)', w: 1, p: 'medium' },
+          { text: 'Контент доказывает экспертизу через кейсы и инсайты (не продаёт в лоб)', w: 2, p: 'high' },
+          { text: 'Есть социальное доказательство: отзывы, результаты клиентов, скриншоты', w: 2, p: 'high' },
+          { text: 'Посадочная страница / лендинг обновлялись в последние 2 месяца', w: 1, p: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'onboarding',
+    icon: '🚀',
+    color: '#1a2520',
+    iconColor: '#3a9a5a',
+    title: 'Онбординг и опыт клиента',
+    desc: 'Первая неделя, поддержка, удержание',
+    categories: [
+      {
+        label: 'Первые 7 дней',
+        items: [
+          { text: 'Есть чёткий онбординг-процесс: что происходит сразу после оплаты', note: 'Клиент знает следующий шаг в первые 24 часа', w: 3, p: 'critical' },
+          { text: 'Приветственное письмо/сообщение отправляется автоматически в течение часа', w: 2, p: 'high' },
+          { text: 'Клиент попадает в чат/сообщество в первый день', w: 1, p: 'medium' },
+          { text: 'Первый контакт с куратором / ментором — в течение 48 часов', w: 2, p: 'high' },
+        ]
+      },
+      {
+        label: 'Удержание и результат',
+        items: [
+          { text: 'Клиент видит первый результат в течение 2 недель', note: 'Ранняя победа = лояльность и рекомендации', w: 3, p: 'critical' },
+          { text: 'Есть регулярная коммуникация (еженедельные созвоны, обновления, разборы)', w: 2, p: 'high' },
+          { text: 'Процент «дошедших до конца» программы отслеживается', w: 2, p: 'high' },
+          { text: 'NPS / удовлетворённость клиентов замеряется (хотя бы раз за поток)', w: 1, p: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'operations',
+    icon: '⚙️',
+    color: '#1f1a1a',
+    iconColor: '#bf5a3a',
+    title: 'Операционка',
+    desc: 'Команда, процессы, масштабируемость',
+    categories: [
+      {
+        label: 'Процессы',
+        items: [
+          { text: 'Все ключевые процессы задокументированы (SOP / чеклисты)', note: 'Диагностики, онбординг, поддержка, обратная связь', w: 2, p: 'high' },
+          { text: 'Есть ролевая структура: кто за что отвечает (диагност / куратор / операционист)', w: 2, p: 'high' },
+          { text: 'Нет задач, которые держатся только в голове одного человека', w: 3, p: 'critical' },
+        ]
+      },
+      {
+        label: 'Масштабирование',
+        items: [
+          { text: 'Продукт может провести следующий поток без твоего личного участия в продажах', w: 3, p: 'critical' },
+          { text: 'Есть система найма и адаптации новых диагностов / кураторов', w: 2, p: 'high' },
+          { text: 'Метрики бизнеса (выручка, LTV, конверсии) видны в дашборде/таблице', w: 2, p: 'high' },
+          { text: 'Есть понимание «потолка» текущей модели и план роста за его пределами', w: 1, p: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'metrics',
+    icon: '📊',
+    color: '#1a1a1f',
+    iconColor: '#4a8fbf',
+    title: 'Ключевые метрики',
+    desc: 'Знаешь ли ты свои цифры',
+    categories: [
+      {
+        label: 'Финансовые показатели',
+        items: [
+          { text: 'Выручка с последнего потока известна и зафиксирована', w: 2, p: 'high' },
+          { text: 'LTV клиента (сколько в среднем платит один клиент за всё время) рассчитан', w: 2, p: 'high' },
+          { text: 'Расходы на поток известны → маржинальность считается', w: 2, p: 'high' },
+          { text: 'Есть цель по выручке на следующий поток с декомпозицией', note: 'Например: €120k = 30 клиентов × €4,000 средний чек', w: 2, p: 'high' },
+        ]
+      },
+      {
+        label: 'Продуктовые показатели',
+        items: [
+          { text: '% клиентов, достигших заявленного результата, отслеживается', w: 3, p: 'critical' },
+          { text: '% рекомендаций (клиент рекомендует другу / коллеге) измеряется', w: 1, p: 'medium' },
+          { text: 'Есть данные: какой тариф покупают чаще и почему', w: 1, p: 'medium' },
+        ]
+      }
+    ]
+  }
+];
+
+// ─────────────────────────────────────────────
+// Build HTML
+// ─────────────────────────────────────────────
+const container = document.getElementById('sectionsContainer');
+let allItemEls = [];
+
+SECTIONS.forEach(sec => {
+  const secEl = document.createElement('div');
+  secEl.className = 'section';
+  secEl.id = `sec_${sec.id}`;
+
+  // Count total items in section
+  const totalItems = sec.categories.reduce((s, c) => s + c.items.length, 0);
+
+  let bodyHTML = '';
+  sec.categories.forEach(cat => {
+    bodyHTML += `<div class="category-label">${cat.label}</div>`;
+    cat.items.forEach((item, idx) => {
+      const pClass = item.p === 'critical' ? 'p-critical' : item.p === 'high' ? 'p-high' : 'p-medium';
+      const pLabel = item.p === 'critical' ? 'критично' : item.p === 'high' ? 'важно' : 'плюс';
+      bodyHTML += `
+        <div class="item" data-sec="${sec.id}" data-w="${item.w}" onclick="toggleItem(this)">
+          <div class="item-checkbox"></div>
+          <div class="item-content">
+            <div class="item-text">${item.text}<span class="priority ${pClass}">${pLabel}</span></div>
+            ${item.note ? `<div class="item-note">💡 ${item.note}</div>` : ''}
+          </div>
+          <div class="item-weight">+${item.w}</div>
+        </div>`;
+    });
+  });
+
+  secEl.innerHTML = `
+    <div class="section-header" onclick="toggleSection('${sec.id}')">
+      <div class="section-icon" style="background:${sec.color};color:${sec.iconColor}">${sec.icon}</div>
+      <div class="section-meta">
+        <div class="section-title">${sec.title}</div>
+        <div class="section-desc">${sec.desc}</div>
+      </div>
+      <div class="section-score-badge" id="badge_${sec.id}">0 / ${totalItems}</div>
+      <div class="section-chevron">⌄</div>
+    </div>
+    <div class="section-mini-bar"><div class="section-mini-fill" id="minibar_${sec.id}"></div></div>
+    <div class="section-body">${bodyHTML}</div>
+  `;
+
+  container.appendChild(secEl);
+});
+
+// Collect all item elements
+allItemEls = document.querySelectorAll('.item');
+
+// ─────────────────────────────────────────────
+// Interactions
+// ─────────────────────────────────────────────
+function toggleSection(id) {
+  const el = document.getElementById(`sec_${id}`);
+  el.classList.toggle('open');
+}
+
+function toggleItem(el) {
+  el.classList.toggle('checked');
+  updateStats();
+  saveState();
+}
+
+function updateStats() {
+  let totalW = 0, checkedW = 0, totalItems = 0, checkedItems = 0;
+
+  // Per section
+  SECTIONS.forEach(sec => {
+    const items = document.querySelectorAll(`.item[data-sec="${sec.id}"]`);
+    let sChecked = 0, sTotal = items.length;
+    items.forEach(it => {
+      const w = parseInt(it.dataset.w);
+      totalW += w; totalItems++;
+      if (it.classList.contains('checked')) { checkedW += w; checkedItems++; sChecked++; }
+    });
+    const pct = sTotal ? (sChecked / sTotal * 100) : 0;
+    document.getElementById(`minibar_${sec.id}`).style.width = pct + '%';
+    document.getElementById(`badge_${sec.id}`).textContent = `${sChecked} / ${sTotal}`;
+
+    const badge = document.getElementById(`badge_${sec.id}`);
+    if (sChecked === sTotal && sTotal > 0) {
+      badge.style.background = '#1a2d1a';
+      badge.style.color = '#6abf6a';
+    } else if (sChecked > 0) {
+      badge.style.background = '#2a2010';
+      badge.style.color = '#c9a84c';
+    } else {
+      badge.style.background = '#2a2a38';
+      badge.style.color = '#888';
+    }
+  });
+
+  const pct = totalItems ? (checkedItems / totalItems * 100) : 0;
+
+  // Dashboard
+  document.getElementById('statChecked').textContent = checkedItems;
+  document.getElementById('statTotal').textContent = totalItems;
+  document.getElementById('statPct').textContent = Math.round(pct) + '%';
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('scoreNum').textContent = checkedW;
+  document.getElementById('scoreTotal').textContent = '/ ' + totalW;
+
+  // Ring
+  const circumference = 251.2;
+  const offset = circumference - (pct / 100 * circumference);
+  const ring = document.getElementById('ringFill');
+  ring.style.strokeDashoffset = offset;
+
+  // Ring color
+  if (pct >= 80) ring.style.stroke = '#6abf6a';
+  else if (pct >= 50) ring.style.stroke = '#c9a84c';
+  else ring.style.stroke = '#bf5a3a';
+
+  // Verdict
+  const vt = document.getElementById('verdictText');
+  if (pct === 0) {
+    vt.textContent = 'Начни проверять — отмечай выполненные пункты';
+    vt.style.color = '#888';
+  } else if (pct < 40) {
+    vt.textContent = '🔴 Продукт требует серьёзной доработки — есть критичные пробелы';
+    vt.style.color = '#ff6b6b';
+  } else if (pct < 65) {
+    vt.textContent = '🟡 Хорошее начало, но есть важные зоны роста — сфокусируйся на «критично»';
+    vt.style.color = '#ffb347';
+  } else if (pct < 85) {
+    vt.textContent = '🟢 Сильный продукт — доточи детали и масштабируй';
+    vt.style.color = '#6abf6a';
+  } else {
+    vt.textContent = '⭐ Отлично выстроенный продукт — пора масштабировать!';
+    vt.style.color = '#c9a84c';
+  }
+}
+
+function resetAll() {
+  if (!confirm('Сбросить все отметки?')) return;
+  document.querySelectorAll('.item.checked').forEach(el => el.classList.remove('checked'));
+  updateStats();
+  localStorage.removeItem('auditState');
+}
+
+// ─────────────────────────────────────────────
+// Persistence
+// ─────────────────────────────────────────────
+function saveState() {
+  const checked = [];
+  document.querySelectorAll('.item.checked').forEach(el => {
+    checked.push(el.closest('.section').id + '::' + el.querySelector('.item-text').textContent.slice(0, 30));
+  });
+  try { localStorage.setItem('auditState', JSON.stringify(checked)); } catch(e){}
+}
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('auditState') || '[]');
+    if (saved.length === 0) return;
+    document.querySelectorAll('.item').forEach(el => {
+      const key = el.closest('.section').id + '::' + el.querySelector('.item-text').textContent.slice(0, 30);
+      if (saved.includes(key)) el.classList.add('checked');
+    });
+    updateStats();
+  } catch(e){}
+}
+
+// ─────────────────────────────────────────────
+// Results overlay
+// ─────────────────────────────────────────────
+function showResults() {
+  // ── Gather data ──
+  let totalItems = 0, checkedItems = 0;
+
+  // All unchecked items sorted by priority weight
+  const unchecked = [];
+  const sectionResults = [];
+
+  SECTIONS.forEach(sec => {
+    const items = document.querySelectorAll(`.item[data-sec="${sec.id}"]`);
+    let sChecked = 0;
+    items.forEach(item => {
+      totalItems++;
+      const isChecked = item.classList.contains('checked');
+      if (isChecked) { checkedItems++; sChecked++; }
+      else {
+        unchecked.push({
+          text: item.querySelector('.item-text').childNodes[0].textContent.trim(),
+          note: item.querySelector('.item-note')?.textContent.replace('💡 ','') || '',
+          w: parseInt(item.dataset.w),
+          p: item.querySelector('.priority')?.textContent || '',
+          section: sec.title,
+          sectionIcon: sec.icon
+        });
+      }
+    });
+    sectionResults.push({
+      title: sec.title, icon: sec.icon,
+      color: sec.iconColor,
+      checked: sChecked, total: items.length,
+      pct: items.length ? Math.round(sChecked / items.length * 100) : 0
+    });
+  });
+
+  const pct = totalItems ? Math.round(checkedItems / totalItems * 100) : 0;
+
+  // ── Score circle ──
+  const circumference = 263.9;
+  const offset = circumference - (pct / 100 * circumference);
+  const ring = document.getElementById('resRingFill');
+  ring.style.strokeDashoffset = offset;
+  if (pct >= 80) ring.style.stroke = '#6abf6a';
+  else if (pct >= 50) ring.style.stroke = '#c9a84c';
+  else ring.style.stroke = '#ff6b6b';
+
+  document.getElementById('resPct').textContent = pct + '%';
+
+  // ── Title & subtitle ──
+  let title, subtitle;
+  if (pct >= 85) {
+    title = '⭐ Сильный продукт';
+    subtitle = 'Твой продукт хорошо выстроен. Фокусируйся на масштабировании и точечных улучшениях.';
+  } else if (pct >= 65) {
+    title = '🟢 Хороший фундамент';
+    subtitle = 'Продукт работает, но есть важные зоны роста. Исправь критичные пробелы — и можно ускоряться.';
+  } else if (pct >= 40) {
+    title = '🟡 Есть над чем работать';
+    subtitle = 'Половина основ заложена. Приоритет — закрыть критичные пункты до следующего потока.';
+  } else {
+    title = '🔴 Продукт требует доработки';
+    subtitle = 'Много базовых вещей ещё не выстроено. Начни с пунктов, отмеченных «критично».';
+  }
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resSubtitle').textContent = subtitle;
+
+  // ── Section bars ──
+  const barsEl = document.getElementById('resSectionBars');
+  barsEl.innerHTML = sectionResults.map(s => {
+    const barColor = s.pct >= 80 ? '#6abf6a' : s.pct >= 50 ? '#c9a84c' : '#bf5a3a';
+    return `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:13px;color:#ccc;">${s.icon} ${s.title}</span>
+          <span style="font-size:13px;font-weight:700;color:${barColor};">${s.pct}% <span style="color:#555;font-weight:400;">(${s.checked}/${s.total})</span></span>
+        </div>
+        <div style="background:#2a2a38;border-radius:6px;height:6px;overflow:hidden;">
+          <div style="height:100%;width:${s.pct}%;background:${barColor};border-radius:6px;transition:width 0.8s ease;"></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // ── Top 5 recs: sort by priority weight desc, pick unchecked ──
+  const sorted = [...unchecked].sort((a, b) => b.w - a.w);
+  const top5 = sorted.slice(0, 5);
+
+  const recColors = ['#3d1a1a','#3d2310','#2d2010','#1a2010','#1a1a2d'];
+  const recBorder = ['#bf3a3a','#c97a3a','#c9a84c','#5a9a3a','#5a5abf'];
+  const recNums = ['1','2','3','4','5'];
+
+  const recsEl = document.getElementById('resRecs');
+  if (top5.length === 0) {
+    recsEl.innerHTML = `<div style="background:#1a2d1a;border:1px solid #3a6a3a;border-radius:12px;padding:24px;text-align:center;color:#6abf6a;font-weight:700;">🎉 Ты отметил всё! Продукт полностью проверен.</div>`;
+  } else {
+    recsEl.innerHTML = top5.map((item, i) => `
+      <div style="background:${recColors[i]};border:1px solid ${recBorder[i]};border-radius:12px;padding:20px 22px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start;">
+        <div style="width:32px;height:32px;border-radius:8px;background:${recBorder[i]};color:#0f0f13;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0;">${recNums[i]}</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">${item.text}</div>
+          ${item.note ? `<div style="font-size:12px;color:#aaa;">💡 ${item.note}</div>` : ''}
+          <div style="font-size:11px;color:#666;margin-top:6px;">${item.sectionIcon} ${item.section}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── What's strong (sections with 80%+) ──
+  const strong = sectionResults.filter(s => s.pct >= 80 && s.total > 0);
+  const goodWrap = document.getElementById('resGoodWrap');
+  const goodEl = document.getElementById('resGood');
+  if (strong.length > 0) {
+    goodWrap.style.display = 'block';
+    goodEl.innerHTML = strong.map(s => `
+      <div style="background:#1a2d1a;border:1px solid #2a4a2a;border-radius:10px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:22px;">${s.icon}</span>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#6abf6a;">${s.title}</div>
+          <div style="font-size:12px;color:#555;">${s.checked} из ${s.total} пунктов выполнены</div>
+        </div>
+        <div style="margin-left:auto;font-size:20px;font-weight:900;color:#6abf6a;">${s.pct}%</div>
+      </div>`).join('');
+  } else {
+    goodWrap.style.display = 'none';
+  }
+
+  // ── Show overlay ──
+  document.getElementById('resultsOverlay').style.display = 'block';
+  document.getElementById('resultsOverlay').scrollTop = 0;
+  document.querySelector('.container').style.display = 'none';
+}
+
+function closeResults() {
+  document.getElementById('resultsOverlay').style.display = 'none';
+  document.querySelector('.container').style.display = 'block';
+}
+
+// Init
+updateStats();
+loadState();
+
+// Open first section by default
+document.querySelector('.section')?.classList.add('open');
+</script>
+</body>
+</html>
